@@ -1,0 +1,77 @@
+{
+  "cosmos-installer": {
+    "form": [
+      {
+        "name": "zone",
+        "label": "The DNS zone that DDNS updates should be applied to (Domain name).",
+        "initialValue": "",
+        "type": "text"
+      },
+      {
+        "name": "subdomain",
+        "label": "Subdomain you want to update (withdomain domain name).  If this is not supplied the root zone will be used.",
+        "initialValue": "",
+        "type": "text"
+      },
+      {
+        "name": "apikey",
+        "label": "Your CloudFlare scoped API token.",
+        "initialValue": "",
+        "type": "text"
+      },
+      {
+        "name": "proxied",
+        "label": "Tick to make traffic go through the CloudFlare CDN ?",
+        "initialValue": false,
+        "type": "checkbox"
+      },
+      {
+        "name": "cron",
+        "label": "Set your own custom CRON value before the exec portion. Defaults to every 5 minutes - */5 * * * *",
+        "initialValue": "",
+        "type": "text"
+      },
+      {
+        "name": "tz",
+        "label": "Time Zone",
+        "initialValue": "Etc/UTC",
+        "type": "text"
+      }
+    ]
+  },
+  "services": {
+    "{ServiceName}": {
+      "image": "oznu/cloudflare-ddns",
+      "container_name": "{ServiceName}",
+      "restart": "unless-stopped",
+      "UID": 1000,
+      "GID": 1000,
+      "environment": [
+        "PUID=1000",
+        "PGID=1000",
+        "API_KEY={Context.apikey}",
+        "ZONE={Context.zone}",
+        {if Context.noAuth}
+            "PROXIED=true",
+        {/if}
+        {if Context.subdomain}
+            "SUBDOMAIN={Context.subdomain}",
+        {/if}
+        {if Context.cron}
+          "CRON=\"{Context.cron}\"",
+        {/if}
+        "TZ={Context.tz}"
+      ],
+      "labels": {
+        "cosmos-force-network-secured": "true",
+        "cosmos-auto-update": "true"
+      },
+      "volumes": [
+      ],
+      "routes": [
+        {
+        }
+      ]
+    }
+  }
+}
